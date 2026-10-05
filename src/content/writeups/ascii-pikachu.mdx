@@ -1,0 +1,40 @@
+---
+title: How a Pikachu became 7,000 characters
+date: 2026-10-04
+summary: The ASCII portrait on my GitHub profile, step by step. A brightness ramp, ten k-means colours, and an animation that types itself out.
+tags: [ascii, images, svg]
+stage: budding
+---
+import AsciiDemo from '../../components/AsciiDemo.astro';
+
+The portrait at the top of my GitHub profile is 140 columns by 50 rows: exactly 7,000 characters. Here is how a JPEG becomes that.
+
+## Brightness picks the character
+
+Every ASCII picture is a lookup. Split the image into a grid of cells, measure each cell's brightness, and pick a character from a *ramp* that runs from empty to dense:
+
+```
+ .`:-=+*cs#%@
+```
+
+On a dark background, bright areas should be dense (more ink means more light), so a white cloud becomes `@` and a black eye becomes a space. The interesting part is how you bend brightness *before* the lookup. A gamma curve decides whether mid-tones lean light or dark:
+
+<AsciiDemo />
+
+## Colour without noise
+
+Colouring every character with its own pixel colour gives the noisy rainbow look most ASCII art has. Instead, I run k-means on the cell colours (in Lab space, so distances match what eyes see) and keep **ten** clusters. Every cell gets its cluster's colour, so the sky is one blue, the face is one yellow, and the cheeks are one red.
+
+The clustering is seeded, so the same image always produces the byte-identical file. That matters because the profile's daily workflow only commits when a file changes.
+
+## Outlines
+
+A cartoon's outlines are thin dark lines. At 140 columns they can disappear into their neighbours. So before the lookup I run an edge detector at full resolution, measure how much of each cell is edge, and push those cells toward the sparse end of the ramp. The outlines come back as drawn lines.
+
+## Typing it out
+
+GitHub strips scripts and CSS from READMEs, but an SVG loaded as an image keeps its own animation. Each row sits behind a clip rectangle whose width animates from zero, with a cursor block riding the edge. Rows start 0.09 seconds apart and freeze when they finish, so the portrait prints once and stays.
+
+The font is inlined too. Browsers refuse to load external fonts inside an image, so each SVG carries a tiny JetBrains Mono subset with just the 13 ramp characters.
+
+The code is in [`make_portrait.py`](https://github.com/happinessisreal/happinessisreal/blob/main/scripts/make_portrait.py).

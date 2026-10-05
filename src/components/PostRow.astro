@@ -1,0 +1,31 @@
+---
+import { STAGE, STAGE_LABEL, fmtDate, readingTime, type Writeup } from '../lib';
+interface Props { post: Writeup; }
+const { post } = Astro.props;
+const { title, summary, date, stage } = post.data;
+---
+<li>
+  <a class="post" href={`/writeups/${post.id}`}>
+    <time class="mono faint" datetime={date.toISOString()}>{fmtDate(date)}</time>
+    <div class="body">
+      <h3>{title}</h3>
+      <p>{summary}</p>
+    </div>
+    <span class="meta mono faint"><span class="stage" title={STAGE_LABEL[stage]}>{STAGE[stage]}</span> {readingTime(post.body)}</span>
+  </a>
+</li>
+
+<style>
+  .post {
+    display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 16px; align-items: baseline;
+    padding: 14px 16px; margin-inline: -16px; border-radius: 12px; text-decoration: none; transition: background 0.2s ease;
+  }
+  .post:hover, .post:focus-visible { background: var(--surface); }
+  time, .meta { font-size: 12.5px; white-space: nowrap; }
+  .body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  h3 { font: 500 16.5px/1.4 var(--font-ui); }
+  .post:hover h3, .post:focus-visible h3 { color: var(--accent-ink); }
+  p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  @media (max-width: 520px) { .post { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+  @media (prefers-reduced-motion: reduce) { .post { transition: none; } }
+</style>

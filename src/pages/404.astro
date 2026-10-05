@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Not found">
+  <main class="nf mono">
+    <pre aria-hidden="true">{`  .-.
+ (o o)  404
+ | O \\
+  \\   \\
+   \`~~~'`}</pre>
+    <p><span class="faint">$</span> cd {'<'}this page{'>'}</p>
+    <p class="muted">cd: no such file or directory</p>
+    <a href="/">← go home</a>
+  </main>
+</Base>
+
+<style>
+  .nf { position: relative; z-index: 1; min-height: 100vh; display: grid; place-content: center; gap: 6px; padding: 24px; font-size: 15px; }
+  pre { color: var(--accent); margin: 0 0 16px; font: inherit; line-height: 1.25; }
+  p { margin: 0; }
+  a { margin-top: 18px; color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--accent); justify-self: start; }
+</style>

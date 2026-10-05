@@ -1,0 +1,50 @@
+---
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/600.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-serif/400.css';
+import '@fontsource/ibm-plex-serif/400-italic.css';
+import '@fontsource/ibm-plex-serif/600.css';
+import '../styles/global.css';
+import { site } from '../site';
+
+interface Props { title?: string; description?: string; }
+const { title, description = site.tagline } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} writeups`} href="/rss.xml" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0b0f14" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+    <slot />
+    <script>
+      // Faint amber glow that follows the pointer (skipped for touch and reduced motion).
+      const glow = document.querySelector<HTMLElement>('.glow');
+      const fine = matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (glow && fine) {
+        addEventListener('pointermove', (e) => {
+          glow.style.setProperty('--mx', `${e.clientX}px`);
+          glow.style.setProperty('--my', `${e.clientY}px`);
+        }, { passive: true });
+      }
+    </script>
+  </body>
+</html>

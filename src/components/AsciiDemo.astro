@@ -1,0 +1,58 @@
+---
+// Live ASCII rendering of a lit sphere, using the same ramp as the profile portrait.
+---
+<figure class="ascii-demo">
+  <pre aria-label="ASCII rendering of a lit sphere"></pre>
+  <div class="controls">
+    <label>gamma <output data-out="gamma">1.4</output><input type="range" name="gamma" min="0.4" max="2.6" step="0.1" value="1.4" /></label>
+    <label>light angle <output data-out="light">45°</output><input type="range" name="light" min="0" max="360" step="5" value="45" /></label>
+    <span class="ramp">ramp: ␠ . ` : - = + * c s # % @</span>
+  </div>
+  <figcaption>Drag the sliders. Brightness picks a character from the ramp; gamma bends brightness first.</figcaption>
+</figure>
+
+<script>
+  const ramp = ' .`:-=+*cs#%@';
+  document.querySelectorAll<HTMLElement>('.ascii-demo').forEach((fig) => {
+    const pre = fig.querySelector('pre')!;
+    const gamma = fig.querySelector<HTMLInputElement>('input[name=gamma]')!;
+    const light = fig.querySelector<HTMLInputElement>('input[name=light]')!;
+    const render = () => {
+      const g = parseFloat(gamma.value);
+      const a = (parseFloat(light.value) * Math.PI) / 180;
+      let lx = Math.cos(a), ly = -Math.sin(a) * 0.8, lz = 0.6;
+      const ln = Math.hypot(lx, ly, lz); lx /= ln; ly /= ln; lz /= ln;
+      const cols = 64, rows = 26;
+      let out = '';
+      for (let r = 0; r < rows; r++) {
+        let line = '';
+        for (let c = 0; c < cols; c++) {
+          const x = (c - cols / 2 + 0.5) / (cols / 2.1), y = (r - rows / 2 + 0.5) / (rows / 2.1);
+          const d = x * x + y * y;
+          if (d > 1) { line += ' '; continue; }
+          const b = Math.pow(Math.max(0, x * lx + y * ly + Math.sqrt(1 - d) * lz), g);
+          line += ramp[Math.min(ramp.length - 1, Math.round(b * (ramp.length - 1)))];
+        }
+        out += line.trimEnd() + '\n';
+      }
+      pre.textContent = out;
+      fig.querySelector('[data-out=gamma]')!.textContent = g.toFixed(1);
+      fig.querySelector('[data-out=light]')!.textContent = `${Math.round(parseFloat(light.value))}°`;
+    };
+    gamma.addEventListener('input', render);
+    light.addEventListener('input', render);
+    render();
+  });
+</script>
+
+<style>
+  .ascii-demo { margin: 2rem 0; padding: 1rem; border-radius: 12px; background: #0d1117; display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 1rem; align-items: center; }
+  .ascii-demo pre { margin: 0; font: 9px/1.02 var(--font-mono); color: #e3b341; overflow: hidden; min-width: 0; background: none !important; padding: 0; border: 0; border-radius: 0; }
+  .controls { display: flex; flex-direction: column; gap: .7rem; color: #e6edf3; font: 12px/1.3 var(--font-mono); }
+  label { display: flex; flex-direction: column; gap: .25rem; }
+  input { width: 100%; accent-color: #e3b341; }
+  output { color: #e3b341; }
+  .ramp { color: #8b949e; word-break: break-all; }
+  figcaption { grid-column: 1 / -1; font: 13px/1.5 var(--font-ui); color: #8b949e; }
+  @media (max-width: 640px) { .ascii-demo { grid-template-columns: 1fr; } }
+</style>
